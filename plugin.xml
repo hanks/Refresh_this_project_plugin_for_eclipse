@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            label="Refresh this project action set"
+            visible="true"
+            id="refresh_this_project.actionSet">
+         <menu
+               label="Refresh this project"
+               id="sampleMenu">
+            <separator
+                  name="sampleGroup">
+            </separator>
+         </menu>
+         <action
+               label="&amp;Refresh this project"
+               icon="icons/sample.gif"
+               class="refresh_this_project.actions.RefreshThisProjectAction"
+               tooltip="Refresh this project"
+               menubarPath="sampleMenu/sampleGroup"
+               toolbarPath="sampleGroup"
+               id="refresh_this_project.actions.RefreshThisProjectAction">
+         </action>
+      </actionSet>
+   </extension>
+
+</plugin>
