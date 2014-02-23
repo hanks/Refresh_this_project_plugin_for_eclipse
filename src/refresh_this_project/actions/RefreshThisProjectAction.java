@@ -4,12 +4,14 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IViewSite;
@@ -54,15 +56,25 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 		// get status bar of eclipse
 		IWorkbenchPart part = page.getActivePart();
 		IWorkbenchPartSite site = part.getSite();
-		IViewSite vSite = ( IViewSite ) site;
-		IActionBars actionBars =  vSite.getActionBars();
-		
+		IActionBars actionBars  = null;
+		if (site instanceof IViewSite) {
+			IViewSite vSite = (IViewSite) site;
+			actionBars =  vSite.getActionBars();
+		} else if (site instanceof IEditorSite) {
+			IEditorSite vSite = (IEditorSite) site;
+			actionBars =  vSite.getActionBars();
+		} 
+					
 		if (editor != null) {
 			IFileEditorInput input = (IFileEditorInput)editor.getEditorInput();
 			IFile file = input.getFile();
 			IProject project = file.getProject();
 			try {
-				project.refreshLocal(IResource.DEPTH_INFINITE, null);
+				if (actionBars != null) {
+					actionBars.getStatusLineManager().setMessage("Start to refresh this project!");
+				}
+				
+				project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 				
 				if (actionBars != null) {
 					actionBars.getStatusLineManager().setMessage("Refresh this project finished!");
