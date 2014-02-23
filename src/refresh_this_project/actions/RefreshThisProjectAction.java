@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
@@ -28,9 +29,6 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.jface.dialogs.MessageDialog;
 
-import org.eclipse.e4.ui.di.UISynchronize;
-import javax.inject.Inject;
-
 /**
  * Our sample action implements workbench action delegate.
  * The action proxy will be created by the workbench and
@@ -39,12 +37,19 @@ import javax.inject.Inject;
  * delegated to it.
  * @see IWorkbenchWindowActionDelegate
  */
+
 public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate {
 	private IWorkbenchWindow window;
 	
 	// get UISynchronize injected as field
-	@SuppressWarnings("restriction")
-	@Inject UISynchronize sync;
+	
+	
+	public static final int STATUS_OK = 0;
+	public static final int STATUS_NO_SELECT_IN_PE = 1;
+	public static final int STATUS_NO_SELECT_IN_PE_AND_EDITOR = 2;
+	public static final int STATUS_ERROR = 3;
+	
+	
 	
 	/**
 	 * The constructor.
@@ -70,7 +75,86 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 		Job job = new Job("Refresh this project") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				doRefreshAction(page);
+
+                Display display = PlatformUI.getWorkbench().getDisplay();
+                display.asyncExec(new Runnable() {
+					@Override 
+					public void run() {
+						// get status bar of eclipse
+						IWorkbenchPart part = page.getActivePart();
+						IWorkbenchPartSite site = part.getSite();
+						IActionBars actionBars  = null;
+						if (site instanceof IViewSite) {
+							IViewSite vSite = (IViewSite) site;
+							actionBars =  vSite.getActionBars();
+						} else if (site instanceof IEditorSite) {
+							IEditorSite vSite = (IEditorSite) site;
+							actionBars =  vSite.getActionBars();
+						}
+						
+						if (actionBars != null) {
+							actionBars.getStatusLineManager().setMessage("Start to refresh this project!");
+						}
+					}
+				});
+
+				try {
+					int statusCode = doRefreshAction(page);
+					
+					switch (statusCode) {
+					case STATUS_OK:
+		                display.asyncExec(new Runnable() {
+							@Override 
+							public void run() {
+								// get status bar of eclipse
+								IWorkbenchPart part = page.getActivePart();
+								IWorkbenchPartSite site = part.getSite();
+								IActionBars actionBars  = null;
+								if (site instanceof IViewSite) {
+									IViewSite vSite = (IViewSite) site;
+									actionBars =  vSite.getActionBars();
+								} else if (site instanceof IEditorSite) {
+									IEditorSite vSite = (IEditorSite) site;
+									actionBars =  vSite.getActionBars();
+								}
+								
+								if (actionBars != null) {
+									actionBars.getStatusLineManager().setMessage("Refresh this project sucessfully!");
+								}
+							}
+						});
+						break;
+					case STATUS_NO_SELECT_IN_PE:
+						display.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								showMessage("No selected file in package explorer!");
+							}
+						});
+						break;
+					case STATUS_NO_SELECT_IN_PE_AND_EDITOR:
+						display.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								showMessage("No selected file in package explorer or active editor!");
+							}
+						});
+						break;
+					case STATUS_ERROR:
+						display.asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								showMessage("Refresh Error!!");
+							}
+						});
+						
+						break;
+					}
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
 				return Status.OK_STATUS;
 			}
 		};
@@ -78,21 +162,15 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 		job.schedule();
 	}
 	
-	public void doRefreshAction(IWorkbenchPage page) {
+	/**
+	 * Refresh the whole project by selected file in editor or package explorer 
+	 * @param page
+	 */
+	public int doRefreshAction(IWorkbenchPage page) {
 		
 		IEditorPart editor = page.getActiveEditor();
 		
-		// get status bar of eclipse
-		IWorkbenchPart part = page.getActivePart();
-		IWorkbenchPartSite site = part.getSite();
-		IActionBars actionBars  = null;
-		if (site instanceof IViewSite) {
-			IViewSite vSite = (IViewSite) site;
-			actionBars =  vSite.getActionBars();
-		} else if (site instanceof IEditorSite) {
-			IEditorSite vSite = (IEditorSite) site;
-			actionBars =  vSite.getActionBars();
-		} 
+		int statusCode = STATUS_OK;
 		
 		// for test
 		try {
@@ -100,24 +178,16 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 		} catch (Throwable th) {
 			
 		}
-					
+							
 		if (editor != null) {
 			IFileEditorInput input = (IFileEditorInput)editor.getEditorInput();
 			IFile file = input.getFile();
 			IProject project = file.getProject();
 			try {
-				if (actionBars != null) {
-					//actionBars.getStatusLineManager().setMessage("Start to refresh this project!");
-				}
-				
 				project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-				
-				if (actionBars != null) {
-					//actionBars.getStatusLineManager().setMessage("Refresh this project finished!");
-				}
 			} catch (CoreException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				statusCode = STATUS_ERROR;
 			}
 		} else {
 			// check selection from package explorer 
@@ -127,7 +197,7 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 			if (package_exploer_selection != null) {
 				Object obj = package_exploer_selection.getFirstElement();
 				if (obj == null) {
-					showMessage("No selection in package explorer");
+					statusCode = STATUS_NO_SELECT_IN_PE;
 				} else {
 					// get file info for selection from package explorer
 					IResource resource = ((ICompilationUnit)obj).getResource();
@@ -137,21 +207,18 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 					    IProject project = ifile.getProject();
 						try {
 							project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-							
-							if (actionBars != null) {
-								//actionBars.getStatusLineManager().setMessage("Refresh this project finished!");
-							}
 						} catch (CoreException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
+							statusCode = STATUS_ERROR;
 						}
 					}
 				}
 			} else {
-				showMessage("No active editor or selection in package explorer");
-				return ;
+				statusCode = STATUS_NO_SELECT_IN_PE_AND_EDITOR;
 			}
 		}
+		
+		return statusCode;
 	}
 
 	/**
