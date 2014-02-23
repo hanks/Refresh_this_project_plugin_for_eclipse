@@ -6,7 +6,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -75,7 +74,6 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 		Job job = new Job("Refresh this project") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-
                 Display display = PlatformUI.getWorkbench().getDisplay();
                 display.asyncExec(new Runnable() {
 					@Override 
@@ -99,11 +97,12 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 				});
 
 				try {
-					int statusCode = doRefreshAction(page);
+					int statusCode = doRefreshAction(page, monitor);
 					
 					switch (statusCode) {
-					case STATUS_OK:
-		                display.asyncExec(new Runnable() {
+					case STATUS_OK:						
+						// show finish message in status bar
+		                display.asyncExec(new Runnable() {	
 							@Override 
 							public void run() {
 								// get status bar of eclipse
@@ -166,25 +165,25 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 	 * Refresh the whole project by selected file in editor or package explorer 
 	 * @param page
 	 */
-	public int doRefreshAction(IWorkbenchPage page) {
+	public int doRefreshAction(IWorkbenchPage page, IProgressMonitor monitor) {
 		
 		IEditorPart editor = page.getActiveEditor();
 		
 		int statusCode = STATUS_OK;
 		
-		// for test
-		try {
-			Thread.sleep (5000);
-		} catch (Throwable th) {
-			
-		}
-							
+//		// for test
+//		try {
+//			Thread.sleep (5000);
+//		} catch (Throwable th) {
+//			
+//		}
+
 		if (editor != null) {
 			IFileEditorInput input = (IFileEditorInput)editor.getEditorInput();
 			IFile file = input.getFile();
 			IProject project = file.getProject();
 			try {
-				project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 			} catch (CoreException e) {
 				e.printStackTrace();
 				statusCode = STATUS_ERROR;
@@ -206,7 +205,7 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 					    IFile ifile = (IFile) resource;
 					    IProject project = ifile.getProject();
 						try {
-							project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+							project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 						} catch (CoreException e) {
 							e.printStackTrace();
 							statusCode = STATUS_ERROR;
