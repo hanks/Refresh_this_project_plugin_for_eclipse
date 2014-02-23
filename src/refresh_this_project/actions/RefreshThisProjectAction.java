@@ -4,7 +4,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -24,6 +28,9 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.jface.dialogs.MessageDialog;
 
+import org.eclipse.e4.ui.di.UISynchronize;
+import javax.inject.Inject;
+
 /**
  * Our sample action implements workbench action delegate.
  * The action proxy will be created by the workbench and
@@ -34,6 +41,11 @@ import org.eclipse.jface.dialogs.MessageDialog;
  */
 public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate {
 	private IWorkbenchWindow window;
+	
+	// get UISynchronize injected as field
+	@SuppressWarnings("restriction")
+	@Inject UISynchronize sync;
+	
 	/**
 	 * The constructor.
 	 */
@@ -47,10 +59,27 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
+		
 		// get active editor info
 		IWorkbench wb = PlatformUI.getWorkbench();
 		IWorkbenchWindow window = wb.getActiveWorkbenchWindow();
-		IWorkbenchPage page = window.getActivePage();
+		
+		// use in inner class job
+		final IWorkbenchPage page = window.getActivePage();
+		
+		Job job = new Job("Refresh this project") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				doRefreshAction(page);
+				return Status.OK_STATUS;
+			}
+		};
+		
+		job.schedule();
+	}
+	
+	public void doRefreshAction(IWorkbenchPage page) {
+		
 		IEditorPart editor = page.getActiveEditor();
 		
 		// get status bar of eclipse
@@ -64,6 +93,13 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 			IEditorSite vSite = (IEditorSite) site;
 			actionBars =  vSite.getActionBars();
 		} 
+		
+		// for test
+		try {
+			Thread.sleep (5000);
+		} catch (Throwable th) {
+			
+		}
 					
 		if (editor != null) {
 			IFileEditorInput input = (IFileEditorInput)editor.getEditorInput();
@@ -71,13 +107,13 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 			IProject project = file.getProject();
 			try {
 				if (actionBars != null) {
-					actionBars.getStatusLineManager().setMessage("Start to refresh this project!");
+					//actionBars.getStatusLineManager().setMessage("Start to refresh this project!");
 				}
 				
 				project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 				
 				if (actionBars != null) {
-					actionBars.getStatusLineManager().setMessage("Refresh this project finished!");
+					//actionBars.getStatusLineManager().setMessage("Refresh this project finished!");
 				}
 			} catch (CoreException e) {
 				// TODO Auto-generated catch block
@@ -100,10 +136,10 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 					    IFile ifile = (IFile) resource;
 					    IProject project = ifile.getProject();
 						try {
-							project.refreshLocal(IResource.DEPTH_INFINITE, null);
+							project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 							
 							if (actionBars != null) {
-								actionBars.getStatusLineManager().setMessage("Refresh this project finished!");
+								//actionBars.getStatusLineManager().setMessage("Refresh this project finished!");
 							}
 						} catch (CoreException e) {
 							// TODO Auto-generated catch block
