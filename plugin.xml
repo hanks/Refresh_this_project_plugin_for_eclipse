@@ -16,15 +16,32 @@
             </separator>
          </menu>
          <action
-               label="&amp;Refresh this project"
-               icon="icons/sample.gif"
                class="refresh_this_project.actions.RefreshThisProjectAction"
-               tooltip="Refresh this project"
+               definitionId="com.han_zhou.refresh_this_project.command"
+               icon="icons/sample.gif"
+               id="refresh_this_project.actions.RefreshThisProjectAction"
+               label="&amp;Refresh this project"
                menubarPath="sampleMenu/sampleGroup"
                toolbarPath="sampleGroup"
-               id="refresh_this_project.actions.RefreshThisProjectAction">
+               tooltip="Refresh this project">
          </action>
       </actionSet>
    </extension>
-
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="com.han_zhou.refresh_this_project.command"
+            name="refresh_this_project_command">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="com.han_zhou.refresh_this_project.command"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="Shift+Command+Z">
+      </key>
+   </extension>
+   
 </plugin>
