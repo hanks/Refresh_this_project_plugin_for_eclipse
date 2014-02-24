@@ -21,7 +21,7 @@ https://raw2.github.com/hanks/Refresh_this_project_plugin_for_eclipse/master/dem
 https://raw2.github.com/hanks/Refresh_this_project_plugin_for_eclipse/master/icons/sample.gif "button"
 
 1. Just click the button ![alt text][button] in the toolbar
-2. Shortcut: Shift+Command+Z
+2. Shortcut: Shift+Ctrl+Z
 
 **shortcut can not be changed now, sorry for this...**
 
