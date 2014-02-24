@@ -3,6 +3,8 @@ Refresh this project
 
 Detect opened file in editor or selected file in package explorer to find project root, and refresh the whole project.
 
+**Use github to host my refresh-this-project plugin for eclipse marketplace** 
+
 ## Why
 Everyday I need to git checkout different branches many times during a job, and I used some git plugins for eclipse before, once I checkout to other branches, the plugin will refresh the project automatically, It is easy to use, but the project is too big, especially too many binary files seem to slow git task. 
 
