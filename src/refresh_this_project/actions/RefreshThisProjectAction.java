@@ -118,7 +118,7 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 								}
 								
 								if (actionBars != null) {
-									actionBars.getStatusLineManager().setMessage("Refresh this project sucessfully!");
+									actionBars.getStatusLineManager().setMessage("Refresh this project successfully!");
 								}
 							}
 						});

@@ -40,7 +40,7 @@
             commandId="com.han_zhou.refresh_this_project.command"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="Shift+Command+Z">
+            sequence="Shift+Ctrl+Z">
       </key>
    </extension>
    
