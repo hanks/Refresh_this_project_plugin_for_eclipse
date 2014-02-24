@@ -48,7 +48,7 @@ There are two ways to install this plugin.
   <li>From update site      
     <ol>
       <li>Select Help->Install New Software...</li>
-      <li>Input <a>https://raw2.github.com/hanks/Refresh_this_project_plugin_update_site/master/</a> and press Add to install.
+      <li>Input <a>https://raw2.github.com/hanks/Refresh_this_project_plugin_for_eclipse/master/release/update_site/</a> and press Add to install.
   </li>
     </ol>
   </li>                
