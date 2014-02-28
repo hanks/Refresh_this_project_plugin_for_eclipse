@@ -39,10 +39,9 @@ import org.eclipse.jface.dialogs.MessageDialog;
 
 public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate {
 	private IWorkbenchWindow window;
+	private String projectName;
 	
-	// get UISynchronize injected as field
-	
-	
+	// refresh action status
 	public static final int STATUS_OK = 0;
 	public static final int STATUS_NO_SELECT_IN_PE = 1;
 	public static final int STATUS_NO_SELECT_IN_PE_AND_EDITOR = 2;
@@ -91,7 +90,7 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 						}
 						
 						if (actionBars != null) {
-							actionBars.getStatusLineManager().setMessage("Starting to refresh this project...");
+							actionBars.getStatusLineManager().setMessage("Starting to refresh project *" + getProjectName() + "*...");
 						}
 					}
 				});
@@ -118,7 +117,7 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 								}
 								
 								if (actionBars != null) {
-									actionBars.getStatusLineManager().setMessage("This project was refreshed successfully!");
+									actionBars.getStatusLineManager().setMessage("Project *" + getProjectName() + "* was refreshed successfully!");
 								}
 							}
 						});
@@ -182,6 +181,8 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 			IFileEditorInput input = (IFileEditorInput)editor.getEditorInput();
 			IFile file = input.getFile();
 			IProject project = file.getProject();
+			this.setProjectName(project.getName());
+			
 			try {
 				project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 			} catch (CoreException e) {
@@ -204,6 +205,8 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 					if (resource.getType() == IResource.FILE) {
 					    IFile ifile = (IFile) resource;
 					    IProject project = ifile.getProject();
+					    this.setProjectName(project.getName());
+					    
 						try {
 							project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 						} catch (CoreException e) {
@@ -252,5 +255,13 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 			window.getShell(),
 			"Refresh this project",
 			message);
+	}
+
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
 	}
 }
