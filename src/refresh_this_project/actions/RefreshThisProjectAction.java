@@ -142,7 +142,7 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 						display.asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								showMessage("Refresh Error!!");
+								showMessage("Refresh Error!! Please make sure select program lanuage file in package explorer.");
 							}
 						});
 						
@@ -199,21 +199,26 @@ public class RefreshThisProjectAction implements IWorkbenchWindowActionDelegate 
 				if (obj == null) {
 					statusCode = STATUS_NO_SELECT_IN_PE;
 				} else {
-					// get file info for selection from package explorer
-					IResource resource = ((ICompilationUnit)obj).getResource();
-					
-					if (resource.getType() == IResource.FILE) {
-					    IFile ifile = (IFile) resource;
-					    IProject project = ifile.getProject();
-					    this.setProjectName(project.getName());
-					    
-						try {
-							project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
-						} catch (CoreException e) {
-							e.printStackTrace();
-							statusCode = STATUS_ERROR;
+					try {
+				        // get file info for selection from package explorer
+				        IResource resource = ((ICompilationUnit)obj).getResource();
+						if (resource.getType() == IResource.FILE) {
+						    IFile ifile = (IFile) resource;
+						    IProject project = ifile.getProject();
+						    this.setProjectName(project.getName());
+						    
+							try {
+								project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+							} catch (CoreException e) {
+								e.printStackTrace();
+								statusCode = STATUS_ERROR;
+							}
 						}
-					}
+					} catch (ClassCastException e) {
+						// now can not select folder or non program file in the explorer
+						e.printStackTrace();
+						statusCode = STATUS_ERROR;
+					} 
 				}
 			} else {
 				statusCode = STATUS_NO_SELECT_IN_PE_AND_EDITOR;
