@@ -8,6 +8,7 @@
             label="Refresh this project action set"
             visible="true"
             id="refresh_this_project.actionSet">
+            <!--
          <menu
                label="Refresh this project"
                id="sampleMenu">
@@ -15,13 +16,14 @@
                   name="sampleGroup">
             </separator>
          </menu>
+         -->
          <action
                class="refresh_this_project.actions.RefreshThisProjectAction"
                definitionId="com.han_zhou.refresh_this_project.command"
                icon="icons/sample.gif"
                id="refresh_this_project.actions.RefreshThisProjectAction"
                label="&amp;Refresh this project"
-               menubarPath="sampleMenu/sampleGroup"
+               menubarPath="file/sampleGroup"
                toolbarPath="sampleGroup"
                tooltip="Refresh this project">
          </action>
