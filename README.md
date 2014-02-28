@@ -3,6 +3,8 @@ Refresh this project
 
 Detect opened file in editor or selected file in package explorer to find project root, and refresh the whole project.
 
+This project requires Eclipse 4.x+ and has JDT dependency.
+
 **Use github to host my refresh-this-project plugin for eclipse marketplace** 
 
 ## Why
