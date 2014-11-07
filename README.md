@@ -14,7 +14,7 @@ So I removed these git plugins and it became kind of faster in the UI operations
 ![alt text][demo]
 
 [demo]: 
-https://raw2.github.com/hanks/Refresh_this_project_plugin_for_eclipse/master/demo/demo.gif "demo"
+https://raw.githubusercontent.com/hanks/Refresh_this_project_plugin_for_eclipse/master/demo/demo.gif "demo"
 
 ##Usage
 [button]: 
