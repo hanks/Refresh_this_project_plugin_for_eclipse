@@ -18,7 +18,7 @@ https://raw.githubusercontent.com/hanks/Refresh_this_project_plugin_for_eclipse/
 
 ##Usage
 [button]: 
-https://raw2.github.com/hanks/Refresh_this_project_plugin_for_eclipse/master/icons/sample.gif "button"
+https://raw.githubusercontent.com/hanks/Refresh_this_project_plugin_for_eclipse/master/icons/sample.gif "button"
 
 1. Just click the button ![alt text][button] in the toolbar
 2. Shortcut: Shift+Ctrl+Z
